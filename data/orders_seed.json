@@ -1,0 +1,36 @@
+[
+  {
+    "order_id": "SO-1790",
+    "customer_po": "NW-47990",
+    "customer_domain": "northwindlogistics.com",
+    "status": "shipped",
+    "carrier": "UPS",
+    "tracking": "1Z999AA10123456784",
+    "eta": "2026-10-27",
+    "note": "Left our warehouse Oct 23."
+  },
+  {
+    "order_id": "SO-1850",
+    "customer_po": "7702",
+    "customer_domain": "brightsidedental.com",
+    "status": "processing",
+    "eta": "2026-10-28",
+    "note": "Being picked and packed."
+  },
+  {
+    "order_id": "SO-1801",
+    "customer_po": "IB-2101",
+    "customer_domain": "ironbridgefab.com",
+    "status": "backordered",
+    "eta": "2026-10-30",
+    "note": "Shipping boxes are awaiting restock."
+  },
+  {
+    "order_id": "SO-1722",
+    "customer_po": "7640",
+    "customer_domain": "brightsidedental.com",
+    "status": "delivered",
+    "eta": "2026-10-19",
+    "note": "Delivered Oct 19."
+  }
+]
