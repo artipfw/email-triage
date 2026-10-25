@@ -154,7 +154,7 @@ def extract(cat, email):
     if llm.MOCK:
         return email["gold"]
     sys_prompt = EXTRACT_SYSTEM + "\n" + EXTRACT_HINTS[cat]
-    return llm.chat(sys_prompt, render(email), EXTRACT_SCHEMAS[cat])
+    return llm.chat(sys_prompt, render(email), EXTRACT_SCHEMAS[cat], constrain=False)
 
 
 def draft(kind, facts, fallback):
