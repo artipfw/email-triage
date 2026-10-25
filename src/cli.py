@@ -114,7 +114,7 @@ def cmd_run(a):
             emails = [e for e in emails if e["id"] in keep]
     results = [process(e, S) for e in emails]
     if a.json:
-        print(json.dumps([{k: v for k, v in r.items() if k != "extracted"} for r in results], indent=2))
+        print(json.dumps(results, indent=2))
     else:
         for r in results:
             print(one_line(r))
