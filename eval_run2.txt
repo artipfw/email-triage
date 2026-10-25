@@ -1,0 +1,40 @@
+MISS e01  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e02  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e03  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e04  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e05  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e06  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e07  cat=spam_or_suspicious  want=sales_inquiry       | dec=escalate       want=route          <- low classifier confidence
+MISS e08  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=auto           <- low classifier confidence
+MISS e09  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=auto           <- low classifier confidence
+MISS e10  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=needs_approval <- low classifier confidence
+OK   e11  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=escalate       
+OK   e12  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=escalate       
+OK   e13  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=escalate       
+OK   e14  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=escalate       
+MISS e15  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=auto           <- low classifier confidence
+OK   e16  cat=spam_or_suspicious  want=new_order           | dec=escalate       want=escalate       
+MISS e17  cat=spam_or_suspicious  want=order_status        | dec=escalate       want=reply          <- low classifier confidence
+MISS e18  cat=spam_or_suspicious  want=order_status        | dec=escalate       want=reply          <- low classifier confidence
+MISS e19  cat=spam_or_suspicious  want=order_status        | dec=escalate       want=reply          <- low classifier confidence
+OK   e20  cat=spam_or_suspicious  want=order_status        | dec=escalate       want=escalate       
+MISS e21  cat=spam_or_suspicious  want=support             | dec=escalate       want=reply          <- low classifier confidence
+OK   e22  cat=spam_or_suspicious  want=support             | dec=escalate       want=escalate       
+MISS e23  cat=spam_or_suspicious  want=support             | dec=escalate       want=reply          <- low classifier confidence
+MISS e24  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=escalate       want=archive        <- low classifier confidence
+MISS e25  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=escalate       want=archive        <- low classifier confidence
+OK   e26  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=quarantine     want=quarantine     
+OK   e27  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=quarantine     want=quarantine     
+OK   e28  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=quarantine     want=quarantine     
+MISS e29  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=escalate       want=archive        <- low classifier confidence
+OK   e30  cat=spam_or_suspicious  want=spam_or_suspicious  | dec=quarantine     want=quarantine     
+
+Category accuracy : 7/30 (23%)
+Decision accuracy : 11/30 (37%)  <- end-to-end: did the right thing happen
+Avg seconds/email : 0.0
+  sales_inquiry       0/7
+  new_order           5/9
+  order_status        1/4
+  support             1/3
+  spam_or_suspicious  4/7
+Security-flagged  : 4 emails quarantined by rules

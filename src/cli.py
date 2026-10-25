@@ -140,6 +140,17 @@ def cmd_watch(a):
         time.sleep(a.interval)
 
 
+def cmd_drop(a):
+    inbox = os.path.join(DATA, "inbox")
+    os.makedirs(inbox, exist_ok=True)
+    by = {e["id"]: e for e in load_emails()}
+    for i in a.ids:
+        e = by[i]
+        with open(os.path.join(inbox, i + ".json"), "w") as f:
+            json.dump({"from": e["from"], "subject": e["subject"], "body": e["body"]}, f)
+        print("dropped", i, "-", e["subject"])
+
+
 def cmd_outbox(a):
     S = State()
     items = [m for m in S.outbox if a.all or m["status"] == "pending"]
@@ -227,6 +238,7 @@ def main():
     rj = sub.add_parser("reject"); rj.add_argument("id"); rj.set_defaults(f=cmd_reject)
     st = sub.add_parser("status"); st.add_argument("--json", action="store_true"); st.set_defaults(f=cmd_status)
     sub.add_parser("reset").set_defaults(f=cmd_reset)
+    dp = sub.add_parser("drop"); dp.add_argument("ids", nargs="+"); dp.set_defaults(f=cmd_drop)
     a = p.parse_args()
     os.makedirs(OUT, exist_ok=True)
     a.f(a)
