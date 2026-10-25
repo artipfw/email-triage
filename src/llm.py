@@ -30,7 +30,7 @@ def chat(system, user, schema=None, temperature=0.0, model=None, retries=1):
             {"role": "system", "content": system},
             {"role": "user", "content": user},
         ],
-        "options": {"temperature": temperature},
+        "options": {"temperature": temperature, "num_predict": int(os.environ.get("LLM_MAX_TOKENS", "700"))},
     }
     if schema:
         body["format"] = schema
