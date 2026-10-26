@@ -218,6 +218,77 @@ def cmd_status(a):
                 print("".join(f.readlines()[-8:]))
 
 
+FLAG_WHY = {
+    "prompt_injection_pattern": "the email contains instructions aimed at an AI assistant",
+    "payment_detail_change": "it asks to change bank or payment details (a classic fraud pattern)",
+    "credential_phish_pattern": "it tries to get a login or password",
+    "risky_attachment": "it carries a risky attachment",
+}
+
+
+def why(r):
+    d, rs = r["decision"], [x for x in (r.get("reasons") or []) if not x.startswith(("owner=", "severity="))]
+    data = r.get("data") or {}
+    cat = (r.get("category") or "").replace("_", " ")
+    if d == "route":
+        return ("Read as a %s (confidence %s). %s account, scored %s = %s lead, so it goes to %s with a "
+                "draft reply and a heads-up note." % (cat, r.get("confidence"), (data.get("segment") or "new").title(),
+                                                       r.get("score"), r.get("priority"), r.get("owner")))
+    if d == "auto":
+        return ("Read as a %s. Every item matched our catalog, stock is available, the customer's "
+                "credit is fine and the total is under the auto-approve limit, so %s was created and "
+                "stock reserved." % (cat, r.get("order_id")))
+    if d == "needs_approval":
+        return "Order %s created but held: %s." % (r.get("order_id"), "; ".join(rs))
+    if d == "escalate":
+        return "A human has to decide: %s." % ("; ".join(rs) or "low confidence")
+    if d == "quarantine":
+        why_ = []
+        for f in r.get("flags") or []:
+            base = f.split(":")[0]
+            why_.append(FLAG_WHY.get(base, "")
+                        or ("the sender domain %s imitates a known customer domain" % f.split(":", 1)[1].replace("~", " ~ ")
+                            if base == "lookalike_domain" else f))
+        return "Blocked before any reply: " + "; ".join(why_) + "."
+    if d == "reply":
+        return "Read as %s %s. Matched to %s and drafted a reply for approval." % ("an" if cat[:1] in "aeiou" else "a", cat, r.get("order_id") or "our records")
+    if d == "archive":
+        return "Read as %s; no action needed." % (rs[0] if rs else cat)
+    return "; ".join(rs)
+
+
+def cmd_digest(a):
+    """Chat-friendly summary: what happened to each email, why, and what needs a human."""
+    S = State()
+    rows = []
+    if os.path.exists(LOG_FILE):
+        with open(LOG_FILE) as f:
+            rows = [json.loads(x) for x in f if x.strip()]
+    icon = {"auto": "✅ auto-handled", "route": "📨 routed", "reply": "💬 reply drafted",
+            "escalate": "🚨 needs a human", "quarantine": "🛡️ quarantined", "archive": "🗄️ archived",
+            "needs_approval": "⚠️ needs approval"}
+    print("**Inbox: %d emails processed**" % len(rows))
+    for r in rows:
+        det = r.get("order_id") or r.get("owner") or ""
+        print("- **%s** %s%s | \"%s\" from %s" % (r["email_id"], icon.get(r["decision"], r["decision"]),
+                                                 " (%s)" % det if det else "", r.get("subject", "")[:50],
+                                                 r.get("from", "")))
+        print("    Why: " + why(r))
+    pend = [m for m in S.outbox if m["status"] == "pending"]
+    print("\n**Waiting for your approval: %d**" % len(pend))
+    for m in pend:
+        what = "customer email to " if m["kind"] == "customer_reply" else "internal note to "
+        first = " ".join(m["body"].split())
+        if m["kind"] == "customer_reply":
+            lines = [x.strip() for x in m["body"].splitlines() if x.strip()]
+            first = (("Confirms order %s" % m["order_id"]) if m.get("order_id")
+                     else (lines[1] if len(lines) > 1 else lines[0] if lines else ""))
+        print("- **%s** | %s%s | %s" % (m["id"], what, m["to"], m["subject"]))
+        print("    %s" % first[:170])
+    if pend:
+        print("\nReply `approve %s` to send one." % pend[0]["id"])
+
+
 def cmd_reset(a):
     for p in ("state.json", "log.jsonl", "sent.log", "notifications.log", "eval.json"):
         q = os.path.join(OUT, p)
@@ -238,6 +309,7 @@ def main():
     rj = sub.add_parser("reject"); rj.add_argument("id"); rj.set_defaults(f=cmd_reject)
     st = sub.add_parser("status"); st.add_argument("--json", action="store_true"); st.set_defaults(f=cmd_status)
     sub.add_parser("reset").set_defaults(f=cmd_reset)
+    sub.add_parser("digest").set_defaults(f=cmd_digest)
     dp = sub.add_parser("drop"); dp.add_argument("ids", nargs="+"); dp.set_defaults(f=cmd_drop)
     a = p.parse_args()
     os.makedirs(OUT, exist_ok=True)
